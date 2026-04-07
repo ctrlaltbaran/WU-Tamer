@@ -158,11 +158,3 @@ The published executable is stand-alone and includes the .NET runtime.
 ## License
 
 [MIT License](LICENSE) — © 2026 ctrlaltbaran
-
----
-
-## Credits
-
-Built with C#, WPF, and the Windows Update Agent API.
-
-For updates, issues, or feature requests, contact the development team.
