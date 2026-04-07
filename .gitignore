@@ -1,0 +1,23 @@
+# Build output
+bin/
+obj/
+publish/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider / JetBrains
+.idea/
+*.iml
+
+# Claude Code (local AI assistant config — not project files)
+.claude/
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
