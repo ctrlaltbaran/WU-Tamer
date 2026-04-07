@@ -157,7 +157,7 @@ The published executable is stand-alone and includes the .NET runtime.
 
 ## License
 
-Internal use only. Not for distribution.
+[MIT License](LICENSE) — © 2026 ctrlaltbaran
 
 ---
 
