@@ -124,7 +124,7 @@ Updates are organized by category (Definition Updates, Critical Updates, Securit
 ```bash
 cd WU-Tamer
 dotnet build -c Release
-dotnet publish -c Release -o ./bin/publish
+dotnet publish -c Release -o ./publish
 ```
 
 The published executable is stand-alone and includes the .NET runtime.
