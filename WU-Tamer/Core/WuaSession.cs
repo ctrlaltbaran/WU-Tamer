@@ -15,7 +15,7 @@ namespace Wu_change.Core
         public WuaSession()
         {
             _session = new UpdateSession();
-            _session.ClientApplicationID = "DeferX";
+            _session.ClientApplicationID = "WU-Tamer";
         }
 
         public IUpdateSearcher CreateSearcher() => _session.CreateUpdateSearcher();

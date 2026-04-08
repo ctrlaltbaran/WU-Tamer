@@ -8,6 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using Microsoft.Win32;
+using Wu_change.Views;
 using Wu_change.Core;
 using Wu_change.Models;
 using Wu_change.Services;
@@ -18,6 +20,39 @@ namespace Wu_change.ViewModels
     {
         public string GroupName { get; set; } = string.Empty;
         public ObservableCollection<UpdateItem> Items { get; set; } = new();
+    }
+
+    public class HistoryKbGroup : INotifyPropertyChanged
+    {
+        public UpdateItem Latest { get; }
+        public List<UpdateItem> OlderAttempts { get; }
+        public bool HasMultiple => OlderAttempts.Count > 0;
+
+        private bool _isExpanded;
+        public bool IsExpanded
+        {
+            get => _isExpanded;
+            set { _isExpanded = value; OnPropertyChanged(); }
+        }
+
+        public ICommand ToggleCommand { get; }
+
+        public HistoryKbGroup(UpdateItem latest, IEnumerable<UpdateItem> older)
+        {
+            Latest = latest;
+            OlderAttempts = older.ToList();
+            ToggleCommand = new RelayCommand(_ => IsExpanded = !IsExpanded);
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+
+    public class HistoryUpdateGroup
+    {
+        public string GroupName { get; set; } = string.Empty;
+        public ObservableCollection<HistoryKbGroup> Items { get; set; } = new();
     }
 
     public class MainViewModel : INotifyPropertyChanged
@@ -31,8 +66,8 @@ namespace Wu_change.ViewModels
 
         public ObservableCollection<UpdateGroup> UpdateGroups { get; } = new();
         public ObservableCollection<UpdateItem> History { get; } = new();
-        public ObservableCollection<UpdateGroup> HistoryGroups { get; } = new();
-        public ObservableCollection<UpdateItem> HistoryFlat { get; } = new();
+        public ObservableCollection<HistoryUpdateGroup> HistoryGroups { get; } = new();
+        public ObservableCollection<HistoryKbGroup> HistoryFlat { get; } = new();
 
         private List<UpdateItem> _allHistory = new();
 
@@ -119,8 +154,22 @@ namespace Wu_change.ViewModels
 
         public Dictionary<string, bool> HistoryGroupFilter => _historyGroupFilter;
 
+        private static bool DetectSystemDarkMode()
+        {
+            try
+            {
+                using var key = Registry.CurrentUser.OpenSubKey(
+                    @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+                // AppsUseLightTheme = 0 means dark mode
+                return key?.GetValue("AppsUseLightTheme") is int v && v == 0;
+            }
+            catch { return false; }
+        }
+
         public MainViewModel()
         {
+            _isDarkMode = DetectSystemDarkMode();
+
             _session = new WuaSession();
             _searcher = new UpdateSearchService(_session);
             _installer = new UpdateInstallService(_session);
@@ -226,14 +275,13 @@ namespace Wu_change.ViewModels
                                            .ToList();
                 if (selected.Count == 0) { StatusText = "No updates selected."; return; }
 
-                var installAnswer = MessageBox.Show(
+                var installAnswer = ThemedMessageBox.Show(
                     "Create a System Restore point before installing?",
                     "Restore Point",
-                    MessageBoxButton.YesNoCancel,
-                    MessageBoxImage.Question);
+                    IsDarkMode);
                 if (installAnswer == MessageBoxResult.Cancel) return;
                 if (installAnswer == MessageBoxResult.Yes)
-                    await _restorePoint.CreateAsync("DeferX — before installing updates", _cts.Token);
+                    await _restorePoint.CreateAsync("WU-Tamer — before installing updates", _cts.Token);
 
                 var collection = new WUApiLib.UpdateCollection();
                 foreach (var item in selected)
@@ -292,15 +340,31 @@ namespace Wu_change.ViewModels
                 .OrderByDescending(u => u.LastDeploymentChangeTime)
                 .ToList();
 
+            var kbGroups = BuildKbGroups(filtered);
+
             Application.Current.Dispatcher.Invoke(() =>
             {
                 HistoryFlat.Clear();
-                foreach (var item in filtered)
-                    HistoryFlat.Add(item);
+                foreach (var kg in kbGroups)
+                    HistoryFlat.Add(kg);
 
                 if (HistoryIsGrouped)
                     GroupHistoryItems(filtered);
             });
+        }
+
+        // Group a flat list of UpdateItems by KB (or title), newest attempt first per group.
+        private static List<HistoryKbGroup> BuildKbGroups(IEnumerable<UpdateItem> items)
+        {
+            return items
+                .GroupBy(u => u.KBArticleIds.Count > 0 ? u.KBArticleIds[0] : u.Title)
+                .Select(g =>
+                {
+                    var sorted = g.OrderByDescending(u => u.LastDeploymentChangeTime).ToList();
+                    return new HistoryKbGroup(sorted[0], sorted.Skip(1));
+                })
+                .OrderByDescending(g => g.Latest.LastDeploymentChangeTime)
+                .ToList();
         }
 
         private static int GroupSortPriority(string groupName) => groupName switch
@@ -321,9 +385,9 @@ namespace Wu_change.ViewModels
             // Items are already sorted newest-first; group by category with Windows updates first
             foreach (var group in items.GroupBy(u => u.GroupName).OrderBy(g => GroupSortPriority(g.Key)))
             {
-                var ug = new UpdateGroup { GroupName = group.Key };
-                foreach (var item in group)
-                    ug.Items.Add(item);
+                var ug = new HistoryUpdateGroup { GroupName = group.Key };
+                foreach (var kg in BuildKbGroups(group))
+                    ug.Items.Add(kg);
                 HistoryGroups.Add(ug);
             }
         }

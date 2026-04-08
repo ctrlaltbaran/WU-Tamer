@@ -44,16 +44,33 @@ namespace Wu_change.Core
                 var installer = (UpdateInstaller)_session.CreateInstaller();
                 installer.Updates = (UpdateCollection)wuaUpdates;
                 installer.AllowSourcePrompts = false;
-                installer.ForceQuiet = true;
 
                 IInstallationResult installResult = installer.Install();
 
                 bool rebootRequired = installResult.RebootRequired;
+                bool success = installResult.ResultCode == OperationResultCode.orcSucceeded
+                            || installResult.ResultCode == OperationResultCode.orcSucceededWithErrors;
+
+                if (!success)
+                {
+                    // Log per-update result codes to help diagnose what failed
+                    for (int i = 0; i < wuaUpdates.Count; i++)
+                    {
+                        var r = installResult.GetUpdateResult(i);
+                        if (r.ResultCode != OperationResultCode.orcSucceeded)
+                            StatusChanged?.Invoke(
+                                $"Failed: {wuaUpdates[i].Title} (HRESULT 0x{r.HResult:X8})");
+                    }
+                    StatusChanged?.Invoke(
+                        $"Install failed (code: {installResult.ResultCode}). Try running Windows Update directly.");
+                    return false;
+                }
+
                 StatusChanged?.Invoke(rebootRequired
-                    ? "Updates installed. Restart required."
+                    ? "Updates installed. A restart is required to finish applying them."
                     : "Updates installed successfully.");
 
-                return installResult.ResultCode == OperationResultCode.orcSucceeded;
+                return true;
             }, ct);
         }
 

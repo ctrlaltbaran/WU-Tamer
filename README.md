@@ -1,4 +1,4 @@
-# DeferX — Windows Update Manager
+# WU-Tamer — Windows Update Manager
 
 A lightweight WPF application for managing Windows updates on your PC with fine-grained control. Scan for updates, install, hide, unhide, and roll back updates all from one interface.
 
@@ -122,7 +122,7 @@ Updates are organized by category (Definition Updates, Critical Updates, Securit
 
 ### Building from Source
 ```bash
-cd DeferX
+cd WU-Tamer
 dotnet build -c Release
 dotnet publish -c Release -o ./bin/publish
 ```

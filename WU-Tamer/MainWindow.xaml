@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Wu_change"
         mc:Ignorable="d"
-        Title="DeferX — Windows Update Manager"
+        Title="WU-Tamer — Windows Update Manager"
         Height="720" Width="1080"
         MinHeight="500" MinWidth="760"
         WindowStartupLocation="CenterScreen"
@@ -54,17 +54,17 @@
 
         <!-- Accent button style -->
         <Style x:Key="AccentButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
-            <Setter Property="Background" Value="#0063B1"/>
+            <Setter Property="Background" Value="#5A2D82"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#0063B1"/>
+            <Setter Property="BorderBrush" Value="#5A2D82"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#0078D4"/>
-                    <Setter Property="BorderBrush" Value="#0078D4"/>
+                    <Setter Property="Background" Value="#7B40B0"/>
+                    <Setter Property="BorderBrush" Value="#7B40B0"/>
                 </Trigger>
                 <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#005A9E"/>
-                    <Setter Property="BorderBrush" Value="#005A9E"/>
+                    <Setter Property="Background" Value="#4A2070"/>
+                    <Setter Property="BorderBrush" Value="#4A2070"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -88,7 +88,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="border" Property="BorderBrush" Value="#0078D4"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#7B40B0"/>
                                 <Setter Property="Foreground" Value="{DynamicResource FgPrimary}"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -115,7 +115,7 @@
                         </StackPanel>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="track" Property="Background" Value="#0078D4"/>
+                                <Setter TargetName="track" Property="Background" Value="#7B40B0"/>
                                 <Setter TargetName="thumb" Property="HorizontalAlignment" Value="Right"/>
                                 <Setter TargetName="thumb" Property="Margin" Value="0,0,3,0"/>
                             </Trigger>
@@ -139,7 +139,7 @@
             <Setter Property="Padding" Value="4,3"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource BtnHover}"/>
+                    <Setter Property="Background" Value="{DynamicResource ListHover}"/>
                 </Trigger>
                 <Trigger Property="IsSelected" Value="True">
                     <Setter Property="Background" Value="{DynamicResource SelectionBg}"/>
@@ -154,6 +154,20 @@
             <Setter Property="Padding" Value="8,5"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GridViewColumnHeader">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="0,0,1,1">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Left"
+                                              RecognizesAccessKey="True"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style TargetType="ScrollViewer">
@@ -340,7 +354,7 @@
                                         <TextBlock Grid.Column="0"
                                                    Text="{Binding GroupName}"
                                                    FontSize="12" FontWeight="SemiBold"
-                                                   Foreground="#0078D4"
+                                                   Foreground="#7B40B0"
                                                    VerticalAlignment="Center"
                                                    Margin="0,0,10,0"/>
                                         <Rectangle Grid.Column="1" Height="1" VerticalAlignment="Center"
@@ -406,7 +420,7 @@
                                                         <Setter Property="Opacity" Value="0.45"/>
                                                     </DataTrigger>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="{DynamicResource BtnHover}"/>
+                                                        <Setter Property="Background" Value="{DynamicResource ListHover}"/>
                                                     </Trigger>
                                                     <Trigger Property="IsSelected" Value="True">
                                                         <Setter Property="Background" Value="{DynamicResource SelectionBg}"/>
@@ -493,7 +507,7 @@
                                             <TextBlock Grid.Column="0"
                                                        Text="{Binding GroupName}"
                                                        FontSize="12" FontWeight="SemiBold"
-                                                       Foreground="#0078D4"
+                                                       Foreground="#7B40B0"
                                                        VerticalAlignment="Center"
                                                        Margin="0,0,10,0"/>
                                             <Rectangle Grid.Column="1" Height="1" VerticalAlignment="Center"
@@ -508,41 +522,101 @@
                                         </Grid>
                                     </Expander.Header>
 
-                                    <!-- Items ListView -->
-                                    <ListView ItemsSource="{Binding Items}" SelectionMode="Extended" Margin="0,4,0,0">
-                                        <ListView.View>
-                                            <GridView>
-                                                <GridViewColumn Header="Title" Width="400">
-                                                    <GridViewColumn.CellTemplate>
-                                                        <DataTemplate>
-                                                            <TextBlock Text="{Binding Title}"
+                                    <!-- Items list with collapsible duplicate attempts -->
+                                    <StackPanel Margin="0,4,0,0">
+                                        <!-- Column headers -->
+                                        <Grid Margin="0,0,0,2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="18"/>
+                                                <ColumnDefinition Width="382"/>
+                                                <ColumnDefinition Width="90"/>
+                                                <ColumnDefinition Width="140"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="1" Text="Title" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource FgSecondary}"/>
+                                            <TextBlock Grid.Column="2" Text="KB Article" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource FgSecondary}"/>
+                                            <TextBlock Grid.Column="3" Text="Date" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource FgSecondary}"/>
+                                        </Grid>
+                                        <ItemsControl ItemsSource="{Binding Items}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel>
+                                                        <!-- Latest attempt row -->
+                                                        <Grid Margin="0,1,0,1">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="18"/>
+                                                                <ColumnDefinition Width="382"/>
+                                                                <ColumnDefinition Width="90"/>
+                                                                <ColumnDefinition Width="140"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <!-- Expand toggle, only shown when duplicates exist -->
+                                                            <ToggleButton Grid.Column="0"
+                                                                          IsChecked="{Binding IsExpanded, Mode=TwoWay}"
+                                                                          Visibility="{Binding HasMultiple, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                          Style="{StaticResource {x:Static ToolBar.ToggleButtonStyleKey}}"
+                                                                          Background="Transparent" BorderThickness="0"
+                                                                          Width="16" Height="16" Padding="0"
+                                                                          VerticalAlignment="Center">
+                                                                <ToggleButton.Content>
+                                                                    <TextBlock FontSize="9" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                                        <TextBlock.Style>
+                                                                            <Style TargetType="TextBlock">
+                                                                                <Setter Property="Text" Value="▶"/>
+                                                                                <Style.Triggers>
+                                                                                    <DataTrigger Binding="{Binding IsExpanded}" Value="True">
+                                                                                        <Setter Property="Text" Value="▼"/>
+                                                                                    </DataTrigger>
+                                                                                </Style.Triggers>
+                                                                            </Style>
+                                                                        </TextBlock.Style>
+                                                                    </TextBlock>
+                                                                </ToggleButton.Content>
+                                                            </ToggleButton>
+                                                            <TextBlock Grid.Column="1" Text="{Binding Latest.Title}"
                                                                        TextTrimming="CharacterEllipsis"
-                                                                       ToolTip="{Binding Title}"
-                                                                       Foreground="{DynamicResource FgPrimary}"/>
-                                                        </DataTemplate>
-                                                    </GridViewColumn.CellTemplate>
-                                                </GridViewColumn>
-                                                <GridViewColumn Header="KB Article" Width="90"
-                                                                DisplayMemberBinding="{Binding KBString}"/>
-                                                <GridViewColumn Header="Date" Width="140"
-                                                                DisplayMemberBinding="{Binding LastDeploymentChangeTime, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}"/>
-                                            </GridView>
-                                        </ListView.View>
-                                        <ListView.ItemContainerStyle>
-                                            <Style TargetType="ListViewItem">
-                                                <Setter Property="Foreground" Value="{DynamicResource FgPrimary}"/>
-                                                <Setter Property="Padding" Value="4,3"/>
-                                                <Style.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="{DynamicResource BtnHover}"/>
-                                                    </Trigger>
-                                                    <Trigger Property="IsSelected" Value="True">
-                                                        <Setter Property="Background" Value="{DynamicResource SelectionBg}"/>
-                                                    </Trigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </ListView.ItemContainerStyle>
-                                    </ListView>
+                                                                       ToolTip="{Binding Latest.Title}"
+                                                                       Foreground="{DynamicResource FgPrimary}"
+                                                                       VerticalAlignment="Center" Padding="2,3"/>
+                                                            <TextBlock Grid.Column="2" Text="{Binding Latest.KBString}"
+                                                                       Foreground="{DynamicResource FgPrimary}"
+                                                                       VerticalAlignment="Center" Padding="2,3"/>
+                                                            <TextBlock Grid.Column="3"
+                                                                       Text="{Binding Latest.LastDeploymentChangeTime, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}"
+                                                                       Foreground="{DynamicResource FgPrimary}"
+                                                                       VerticalAlignment="Center" Padding="2,3"/>
+                                                        </Grid>
+                                                        <!-- Older attempts, shown when expanded -->
+                                                        <ItemsControl ItemsSource="{Binding OlderAttempts}"
+                                                                      Visibility="{Binding IsExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <Grid Margin="0,1,0,1">
+                                                                        <Grid.ColumnDefinitions>
+                                                                            <ColumnDefinition Width="18"/>
+                                                                            <ColumnDefinition Width="382"/>
+                                                                            <ColumnDefinition Width="90"/>
+                                                                            <ColumnDefinition Width="140"/>
+                                                                        </Grid.ColumnDefinitions>
+                                                                        <TextBlock Grid.Column="1" Text="{Binding Title}"
+                                                                                   TextTrimming="CharacterEllipsis"
+                                                                                   ToolTip="{Binding Title}"
+                                                                                   Foreground="{DynamicResource FgSecondary}"
+                                                                                   VerticalAlignment="Center" Padding="2,3"/>
+                                                                        <TextBlock Grid.Column="2" Text="{Binding KBString}"
+                                                                                   Foreground="{DynamicResource FgSecondary}"
+                                                                                   VerticalAlignment="Center" Padding="2,3"/>
+                                                                        <TextBlock Grid.Column="3"
+                                                                                   Text="{Binding LastDeploymentChangeTime, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}"
+                                                                                   Foreground="{DynamicResource FgSecondary}"
+                                                                                   VerticalAlignment="Center" Padding="2,3"/>
+                                                                    </Grid>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
                                 </Expander>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -552,42 +626,109 @@
                 <!-- Flat List View -->
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="16,12,16,12"
                               Visibility="{Binding HistoryIsGrouped, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                    <ListView ItemsSource="{Binding HistoryFlat}" SelectionMode="Extended">
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn Header="Title" Width="350">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Title}"
+                    <StackPanel>
+                        <!-- Column headers -->
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="18"/>
+                                <ColumnDefinition Width="352"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="140"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="1" Text="Title" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource FgSecondary}"/>
+                            <TextBlock Grid.Column="2" Text="Group" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource FgSecondary}"/>
+                            <TextBlock Grid.Column="3" Text="KB Article" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource FgSecondary}"/>
+                            <TextBlock Grid.Column="4" Text="Date" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource FgSecondary}"/>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding HistoryFlat}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <!-- Latest attempt row -->
+                                        <Grid Margin="0,1,0,1">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="18"/>
+                                                <ColumnDefinition Width="352"/>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="90"/>
+                                                <ColumnDefinition Width="140"/>
+                                            </Grid.ColumnDefinitions>
+                                            <ToggleButton Grid.Column="0"
+                                                          IsChecked="{Binding IsExpanded, Mode=TwoWay}"
+                                                          Visibility="{Binding HasMultiple, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                          Style="{StaticResource {x:Static ToolBar.ToggleButtonStyleKey}}"
+                                                          Background="Transparent" BorderThickness="0"
+                                                          Width="16" Height="16" Padding="0"
+                                                          VerticalAlignment="Center">
+                                                <ToggleButton.Content>
+                                                    <TextBlock FontSize="9" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Text" Value="▶"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsExpanded}" Value="True">
+                                                                        <Setter Property="Text" Value="▼"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </ToggleButton.Content>
+                                            </ToggleButton>
+                                            <TextBlock Grid.Column="1" Text="{Binding Latest.Title}"
                                                        TextTrimming="CharacterEllipsis"
-                                                       ToolTip="{Binding Title}"
-                                                       Foreground="{DynamicResource FgPrimary}"/>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="Group" Width="100"
-                                                DisplayMemberBinding="{Binding GroupName}"/>
-                                <GridViewColumn Header="KB Article" Width="90"
-                                                DisplayMemberBinding="{Binding KBString}"/>
-                                <GridViewColumn Header="Date" Width="140"
-                                                DisplayMemberBinding="{Binding LastDeploymentChangeTime, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}"/>
-                            </GridView>
-                        </ListView.View>
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="Foreground" Value="{DynamicResource FgPrimary}"/>
-                                <Setter Property="Padding" Value="4,3"/>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="{DynamicResource BtnHover}"/>
-                                    </Trigger>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="{DynamicResource SelectionBg}"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                    </ListView>
+                                                       ToolTip="{Binding Latest.Title}"
+                                                       Foreground="{DynamicResource FgPrimary}"
+                                                       VerticalAlignment="Center" Padding="2,3"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Latest.GroupName}"
+                                                       Foreground="{DynamicResource FgPrimary}"
+                                                       VerticalAlignment="Center" Padding="2,3"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding Latest.KBString}"
+                                                       Foreground="{DynamicResource FgPrimary}"
+                                                       VerticalAlignment="Center" Padding="2,3"/>
+                                            <TextBlock Grid.Column="4"
+                                                       Text="{Binding Latest.LastDeploymentChangeTime, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}"
+                                                       Foreground="{DynamicResource FgPrimary}"
+                                                       VerticalAlignment="Center" Padding="2,3"/>
+                                        </Grid>
+                                        <!-- Older attempts -->
+                                        <ItemsControl ItemsSource="{Binding OlderAttempts}"
+                                                      Visibility="{Binding IsExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid Margin="0,1,0,1">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="18"/>
+                                                            <ColumnDefinition Width="352"/>
+                                                            <ColumnDefinition Width="100"/>
+                                                            <ColumnDefinition Width="90"/>
+                                                            <ColumnDefinition Width="140"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="1" Text="{Binding Title}"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   ToolTip="{Binding Title}"
+                                                                   Foreground="{DynamicResource FgSecondary}"
+                                                                   VerticalAlignment="Center" Padding="2,3"/>
+                                                        <TextBlock Grid.Column="2" Text="{Binding GroupName}"
+                                                                   Foreground="{DynamicResource FgSecondary}"
+                                                                   VerticalAlignment="Center" Padding="2,3"/>
+                                                        <TextBlock Grid.Column="3" Text="{Binding KBString}"
+                                                                   Foreground="{DynamicResource FgSecondary}"
+                                                                   VerticalAlignment="Center" Padding="2,3"/>
+                                                        <TextBlock Grid.Column="4"
+                                                                   Text="{Binding LastDeploymentChangeTime, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}"
+                                                                   Foreground="{DynamicResource FgSecondary}"
+                                                                   VerticalAlignment="Center" Padding="2,3"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
                 </ScrollViewer>
             </Grid>
         </Grid>
@@ -606,7 +747,7 @@
                            FontSize="12" VerticalAlignment="Center"
                            Foreground="{DynamicResource FgSecondary}"/>
                 <ProgressBar Grid.Column="1" Height="3" IsIndeterminate="True"
-                             Foreground="#0078D4"
+                             Foreground="#7B40B0"
                              Background="Transparent"
                              Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}"/>
             </Grid>
