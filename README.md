@@ -116,20 +116,6 @@ Updates are organized by category (Definition Updates, Critical Updates, Securit
 ### "Access Denied" or Permission Errors
 - Run the app as Administrator. Right-click the executable and select "Run as Administrator"
 
-### Updates Keep Reinstalling
-- After rolling back an update, you **must hide it** to prevent Windows from automatically reinstalling it on the next scan
-- Use the **Hide** button in the Available Updates tab
-
-### Restore Point Creation Fails
-- Ensure System Restore is enabled: Settings → System → System protection
-- Check that you haven't created a restore point in the last 24 hours (Windows throttling)
-- Ensure the system drive has sufficient free space (at least 3% of disk size recommended)
-
-### Status Bar Shows "Failed to Remove KB..."
-- The update may not be currently installed
-- The update may require a restart to uninstall (try restarting and running the app again)
-- Some system updates cannot be uninstalled via `wusa.exe`
-
 ---
 
 ## Development Notes
