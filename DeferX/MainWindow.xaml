@@ -512,14 +512,6 @@
                                     <ListView ItemsSource="{Binding Items}" SelectionMode="Extended" Margin="0,4,0,0">
                                         <ListView.View>
                                             <GridView>
-                                                <GridViewColumn Width="40">
-                                                    <GridViewColumn.CellTemplate>
-                                                        <DataTemplate>
-                                                            <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                                                      HorizontalAlignment="Center"/>
-                                                        </DataTemplate>
-                                                    </GridViewColumn.CellTemplate>
-                                                </GridViewColumn>
                                                 <GridViewColumn Header="Title" Width="400">
                                                     <GridViewColumn.CellTemplate>
                                                         <DataTemplate>
@@ -563,14 +555,6 @@
                     <ListView ItemsSource="{Binding HistoryFlat}" SelectionMode="Extended">
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Width="40">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                                      HorizontalAlignment="Center"/>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
                                 <GridViewColumn Header="Title" Width="350">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
