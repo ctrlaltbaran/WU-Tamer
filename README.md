@@ -106,7 +106,7 @@ The solution has two projects. **`WU-Tamer.Core`** holds all the Windows Update 
 
 - **Restore Point Throttling:** Windows limits restore point creation to once per 24 hours by default. If a restore point already exists on the current day, the app will note this and continue without creating a new one.
 - **History KB Extraction:** KB article numbers are extracted from update titles using regex pattern matching (`KB\d+`). Some updates may not have KB numbers if they're not embedded in the title.
-- **Offline Catalogs:** The app supports offline update catalogs (`.cab` files) via `SearchOfflineAsync`, but this feature is not exposed in the UI yet.
+- **Offline Catalogs:** **Scan offline…** scans against a catalog file you choose (Microsoft's `wsusscn2.cab`; the app never downloads it). Offline results are scan-only: Install, Hide and Unhide are disabled for them, so install the missing updates with a normal scan or Windows Update. The catalog mainly covers security updates, so drivers and optional updates may not appear.
 
 ---
 

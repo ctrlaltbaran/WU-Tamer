@@ -81,6 +81,7 @@ namespace WU_Tamer.ViewModels
         private Dictionary<string, bool> _historyGroupFilter = new();
 
         public ICommand ScanCommand { get; }
+        public ICommand ScanOfflineCommand { get; }
         public ICommand InstallSelectedCommand { get; }
         public ICommand HideSelectedCommand { get; }
         public ICommand UnhideSelectedCommand { get; }
@@ -105,6 +106,7 @@ namespace WU_Tamer.ViewModels
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsNotBusy));
                 (ScanCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                (ScanOfflineCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 (InstallSelectedCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 (HideSelectedCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 (UnhideSelectedCommand as RelayCommand)?.RaiseCanExecuteChanged();
@@ -113,6 +115,21 @@ namespace WU_Tamer.ViewModels
             }
         }
         public bool IsNotBusy => !_isBusy;
+
+        // True while the list shows an offline-catalog scan: those results are scan-only.
+        private bool _isOfflineResults;
+        public bool IsOfflineResults
+        {
+            get => _isOfflineResults;
+            private set
+            {
+                _isOfflineResults = value;
+                OnPropertyChanged();
+                (InstallSelectedCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                (HideSelectedCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                (UnhideSelectedCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            }
+        }
 
         private bool _hasNoUpdates = true;
         public bool HasNoUpdates
@@ -180,9 +197,10 @@ namespace WU_Tamer.ViewModels
             _restorePoint.StatusChanged += msg => Application.Current.Dispatcher.Invoke(() => StatusText = msg);
 
             ScanCommand = new RelayCommand(async _ => await ScanAsync(), _ => IsNotBusy);
-            InstallSelectedCommand = new RelayCommand(async _ => await InstallSelectedAsync(), _ => IsNotBusy);
-            HideSelectedCommand = new RelayCommand(async _ => await HideSelectedAsync(true), _ => IsNotBusy);
-            UnhideSelectedCommand = new RelayCommand(async _ => await HideSelectedAsync(false), _ => IsNotBusy);
+            ScanOfflineCommand = new RelayCommand(async _ => await ScanOfflineAsync(), _ => IsNotBusy);
+            InstallSelectedCommand = new RelayCommand(async _ => await InstallSelectedAsync(), _ => IsNotBusy && !IsOfflineResults);
+            HideSelectedCommand = new RelayCommand(async _ => await HideSelectedAsync(true), _ => IsNotBusy && !IsOfflineResults);
+            UnhideSelectedCommand = new RelayCommand(async _ => await HideSelectedAsync(false), _ => IsNotBusy && !IsOfflineResults);
             CancelCommand = new RelayCommand(_ => Cancel(), _ => IsBusy);
             LoadHistoryCommand = new RelayCommand(async _ => await LoadHistoryAsync(), _ => IsNotBusy);
             ToggleDarkModeCommand   = new RelayCommand(_ => IsDarkMode = !IsDarkMode);
@@ -216,25 +234,51 @@ namespace WU_Tamer.ViewModels
             });
         }
 
-        public async Task ScanAsync()
+        public Task ScanAsync() => RunScanAsync(
+            ct => _searcher.SearchOnlineAsync(true, true, ct),
+            offline: false);
+
+        // Scans against a catalog file the user picks (Microsoft's wsusscn2.cab). The app
+        // never downloads one itself. Results are scan-only.
+        public async Task ScanOfflineAsync()
+        {
+            if (IsBusy) return;
+            var dialog = new OpenFileDialog
+            {
+                Title = "Choose an offline update catalog",
+                Filter = "Windows Update offline catalog (*.cab)|*.cab"
+            };
+            if (dialog.ShowDialog() != true) return;
+
+            await RunScanAsync(ct => _searcher.SearchOfflineAsync(dialog.FileName, ct), offline: true);
+        }
+
+        private async Task RunScanAsync(Func<CancellationToken, Task<List<UpdateItem>>> search, bool offline)
         {
             if (IsBusy) return;
             IsBusy = true;
             _allResults.Clear();
+            IsOfflineResults = false;
             Application.Current.Dispatcher.Invoke(() => { UpdateGroups.Clear(); HasNoUpdates = true; });
             _cts = new CancellationTokenSource();
 
             try
             {
-                var results = await _searcher.SearchOnlineAsync(true, true, _cts.Token);
+                var results = await search(_cts.Token);
                 _allResults = results;
+                IsOfflineResults = offline;
                 ApplyFilter();
 
                 int total = results.Count;
                 int hidden = results.Count(u => u.IsHidden);
-                StatusText = total == 0
-                    ? "✓ Your system is up to date."
-                    : $"Found {total} update(s)" + (hidden > 0 ? $" · {hidden} hidden" : "");
+                if (offline)
+                    StatusText = total == 0
+                        ? "✓ Offline scan: no missing updates found."
+                        : $"Offline scan: {total} missing update(s). Scan only: install them with Windows Update.";
+                else
+                    StatusText = total == 0
+                        ? "✓ Your system is up to date."
+                        : $"Found {total} update(s)" + (hidden > 0 ? $" · {hidden} hidden" : "");
             }
             catch (OperationCanceledException) { StatusText = "Scan cancelled."; }
             catch (Exception ex) { StatusText = $"Error: {ex.Message}"; }

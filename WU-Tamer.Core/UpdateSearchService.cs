@@ -85,11 +85,22 @@ namespace WuTamer.Core
                 searcher.ServerSelection = ServerSelection.ssOthers;
                 var manager = new UpdateServiceManager();
                 var service = manager.AddScanPackageService("Offline Sync Service", cabPath);
-                searcher.ServiceID = service.ServiceID;
+                try
+                {
+                    searcher.ServiceID = service.ServiceID;
 
-                StatusChanged?.Invoke("Scanning against offline catalog...");
-                ISearchResult result = searcher.Search("IsInstalled=0");
-                return MapResults(result.Updates);
+                    StatusChanged?.Invoke("Scanning against offline catalog...");
+                    ISearchResult result = searcher.Search("IsInstalled=0");
+                    var items = MapResults(result.Updates);
+                    foreach (var item in items)
+                        item.IsOfflineResult = true;
+                    return items;
+                }
+                finally
+                {
+                    // Don't leave the scan package registered with Windows Update.
+                    try { manager.RemoveService(service.ServiceID); } catch { }
+                }
             }, ct);
         }
 

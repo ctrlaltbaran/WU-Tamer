@@ -27,6 +27,9 @@ namespace WuTamer.Core.Models
         public bool IsDriver { get; set; }
         public bool IsFirmware { get; set; }
         public bool IsOptional { get; set; }
+
+        /// <summary>Found by scanning an offline catalog: it can be listed but not installed, hidden or unhidden.</summary>
+        public bool IsOfflineResult { get; set; }
         public double SizeMB { get; set; }
         public DateTime? LastDeploymentChangeTime { get; set; }
         public List<string> KBArticleIds { get; set; } = new();
