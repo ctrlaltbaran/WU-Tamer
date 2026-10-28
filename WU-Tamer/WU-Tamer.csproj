@@ -24,10 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="WUApiLib">
-      <HintPath>WUApiLib.dll</HintPath>
-      <EmbedInteropTypes>true</EmbedInteropTypes>
-    </Reference>
+    <ProjectReference Include="..\WU-Tamer.Core\WU-Tamer.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

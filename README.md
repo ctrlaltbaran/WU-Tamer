@@ -66,18 +66,17 @@ Updates are organized by category (Definition Updates, Critical Updates, Securit
 
 ### Key Components
 
-**`Core/`**
+The solution has two projects. **`WU-Tamer.Core`** holds all the Windows Update logic and has no UI code, so other tools can reuse it. **`WU-Tamer`** is the WPF app on top of it.
+
+**`WU-Tamer.Core/`** (namespace `WuTamer.Core`)
 - `WuaSession.cs` — Wraps the WUA COM API (`WUApiLib.dll`)
 - `UpdateSearchService.cs` — Searches for available/hidden updates and manages hide/unhide state
 - `UpdateInstallService.cs` — Downloads and installs updates via the WUA API
+- `Services/RestorePointService.cs` — Creates Windows System Restore points via PowerShell's `Checkpoint-Computer` cmdlet
+- `Services/RegistryService.cs` — (Included for future use) Can read/write Windows Update policy registry keys
+- `Models/UpdateItem.cs` — Data model representing a single update (title, KB number, severity, size, installation status, etc.)
 
-**`Services/`**
-- `RestorePointService.cs` — Creates Windows System Restore points via PowerShell's `Checkpoint-Computer` cmdlet
-- `RegistryService.cs` — (Included for future use) Can read/write Windows Update policy registry keys
-
-**`Models/`**
-- `UpdateItem.cs` — Data model representing a single update (title, KB number, severity, size, installation status, etc.)
-
+**`WU-Tamer/`** (the app, namespace `WU_Tamer`)
 **`ViewModels/`**
 - `MainViewModel.cs` — MVVM view model managing UI state, commands, and business logic
 
@@ -122,9 +121,8 @@ Updates are organized by category (Definition Updates, Critical Updates, Securit
 
 ### Building from Source
 ```bash
-cd WU-Tamer
 dotnet build -c Release
-dotnet publish -c Release -o ./publish
+dotnet publish WU-Tamer/WU-Tamer.csproj -c Release -o ./publish
 ```
 
 The published executable is stand-alone and includes the .NET runtime.

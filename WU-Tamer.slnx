@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="WU-Tamer.Core/WU-Tamer.Core.csproj" />
   <Project Path="WU-Tamer/WU-Tamer.csproj" />
 </Solution>

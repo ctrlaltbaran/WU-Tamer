@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Wu_change.Services
+namespace WuTamer.Core.Services
 {
     public class RestorePointService
     {

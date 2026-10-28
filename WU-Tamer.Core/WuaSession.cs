@@ -1,7 +1,7 @@
 using System;
 using WUApiLib;
 
-namespace Wu_change.Core
+namespace WuTamer.Core
 {
     /// <summary>
     /// Wraps the Windows Update Agent COM API session.

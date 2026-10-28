@@ -4,9 +4,9 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using WUApiLib;
-using Wu_change.Models;
+using WuTamer.Core.Models;
 
-namespace Wu_change.Core
+namespace WuTamer.Core
 {
     public class UpdateSearchService
     {

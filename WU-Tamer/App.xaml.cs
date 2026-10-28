@@ -2,7 +2,7 @@
 using System.Data;
 using System.Windows;
 
-namespace Wu_change
+namespace WU_Tamer
 {
     /// <summary>
     /// Interaction logic for App.xaml

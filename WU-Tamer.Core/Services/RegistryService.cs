@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Win32;
 
-namespace Wu_change.Services
+namespace WuTamer.Core.Services
 {
     /// <summary>
     /// Read and write Windows Update policy settings via the registry.

@@ -3,9 +3,9 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
-using Wu_change.Models;
+using WuTamer.Core.Models;
 
-namespace Wu_change
+namespace WU_Tamer
 {
     public class SeverityColorConverter : IValueConverter
     {

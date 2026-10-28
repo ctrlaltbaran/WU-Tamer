@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using WUApiLib;
 
-namespace Wu_change.Models
+namespace WuTamer.Core.Models
 {
     public enum UpdateSeverity { Unknown, Low, Moderate, Important, Critical }
     public enum UpdateStatus { Available, Downloading, Downloaded, Installing, Installed, Failed, Hidden }
@@ -13,6 +13,9 @@ namespace Wu_change.Models
     {
         // Raw COM reference — needed for hide/unhide
         internal IUpdate? RawUpdate { get; set; }
+
+        /// <summary>True when this item still has its Windows Update handle (needed to install, hide or unhide).</summary>
+        public bool HasUpdateHandle => RawUpdate != null;
 
         public string Id { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;

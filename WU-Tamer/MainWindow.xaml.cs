@@ -5,9 +5,9 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
-using Wu_change.ViewModels;
+using WU_Tamer.ViewModels;
 
-namespace Wu_change
+namespace WU_Tamer
 {
     public partial class MainWindow : Window
     {

@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
-using Wu_change.Views;
-using Wu_change.Core;
-using Wu_change.Models;
-using Wu_change.Services;
+using WU_Tamer.Views;
+using WuTamer.Core;
+using WuTamer.Core.Models;
+using WuTamer.Core.Services;
 
-namespace Wu_change.ViewModels
+namespace WU_Tamer.ViewModels
 {
     public class UpdateGroup
     {
@@ -271,7 +271,7 @@ namespace Wu_change.ViewModels
             try
             {
                 var selected = UpdateGroups.SelectMany(g => g.Items)
-                                           .Where(u => u.IsSelected && !u.IsHidden && u.RawUpdate != null)
+                                           .Where(u => u.IsSelected && !u.IsHidden && u.HasUpdateHandle)
                                            .ToList();
                 if (selected.Count == 0) { StatusText = "No updates selected."; return; }
 
@@ -283,11 +283,7 @@ namespace Wu_change.ViewModels
                 if (installAnswer == MessageBoxResult.Yes)
                     await _restorePoint.CreateAsync("WU-Tamer — before installing updates", _cts.Token);
 
-                var collection = new WUApiLib.UpdateCollection();
-                foreach (var item in selected)
-                    collection.Add(item.RawUpdate);
-
-                bool success = await _installer.DownloadAndInstallAsync(collection, _cts.Token);
+                bool success = await _installer.DownloadAndInstallAsync(selected, _cts.Token);
                 if (success)
                 {
                     foreach (var item in selected)

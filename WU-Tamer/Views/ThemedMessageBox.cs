@@ -7,7 +7,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 
-namespace Wu_change.Views
+namespace WU_Tamer.Views
 {
     /// <summary>
     /// A themed Yes/No/Cancel dialog that matches the app's current dark or light mode.
